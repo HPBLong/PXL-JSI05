@@ -4,6 +4,8 @@ import {
   collection,
   addDoc,
   getDocs,
+  deleteDoc,
+  doc,
 } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -32,14 +34,32 @@ form.addEventListener("submit", async (e) => {
       title: title,
       description: description,
     });
+    getData();
     console.log("submit success");
   } catch (e) {
     console.error("Error adding document: ", e);
   }
 });
 const output = document.getElementById("output");
-const querySnapshot = await getDocs(collection(db, "Info"));
-querySnapshot.forEach((doc) => {
-  output.innerHTML += `<h2>${doc.data().title}</h2>
-  <p>${doc.data().description}</p>`;
-});
+
+async function getData() {
+  output.innerHTML = "";
+  const querySnapshot = await getDocs(collection(db, "Info"));
+  querySnapshot.forEach((doc) => {
+    output.innerHTML += `<h2>${doc.data().title}</h2>
+  <p>${doc.data().description}</p>
+  <button onclick="deleteData('${doc.id}')">Delete</button>`;
+  });
+}
+
+window.deleteData = async function (id) {
+  try {
+    await deleteDoc(doc(db, "Info", id));
+    console.log("Delete success");
+    getData();
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+getData();
